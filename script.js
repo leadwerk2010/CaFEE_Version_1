@@ -229,9 +229,10 @@ function initMenuBook() {
 
     const bookPageWidth = 720;
     const desktopBookPageHeight = 980;
+    const tabletBookPageHeight = 1180;
     const mobileBookPageHeight = 1280;
     let pageFlip = null;
-    let isMobilePageLayout = false;
+    let bookPageLayout = 'default';
 
     const turnSound = new Audio('page-turn.mp3');
     turnSound.volume = 0.5;
@@ -242,13 +243,28 @@ function initMenuBook() {
         dom.totalPagesEl.textContent = String(state.totalPages);
     }
 
-    function isMobileBookViewport() {
-        return (window.visualViewport?.width ?? window.innerWidth) <= 767.98;
+    function getBookPageLayout() {
+        const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
+        const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+
+        if (viewportWidth <= 767.98) {
+            return 'mobile';
+        }
+
+        if (isCoarsePointer && viewportWidth <= 1366) {
+            return 'tablet';
+        }
+
+        return 'default';
     }
 
     function buildPageFlip(startPage = 0) {
-        const useMobileLayout = isMobileBookViewport();
-        const bookPageHeight = useMobileLayout ? mobileBookPageHeight : desktopBookPageHeight;
+        const pageLayout = getBookPageLayout();
+        const bookPageHeight = pageLayout === 'mobile'
+            ? mobileBookPageHeight
+            : pageLayout === 'tablet'
+                ? tabletBookPageHeight
+                : desktopBookPageHeight;
         const safeStartPage = Math.max(0, Math.min(startPage, pageElements.length - 1));
 
         pageElements.forEach(pageElement => {
@@ -256,7 +272,7 @@ function initMenuBook() {
             pageElement.style.height = `${bookPageHeight}px`;
         });
 
-        dom.bookPages.dataset.bookLayout = useMobileLayout ? 'mobile' : 'default';
+        dom.bookPages.dataset.bookLayout = pageLayout;
         dom.bookPages.replaceChildren(...pageElements);
 
         pageFlip = new St.PageFlip(dom.bookPages, {
@@ -265,7 +281,7 @@ function initMenuBook() {
             size: 'stretch',
             minWidth: 260,
             maxWidth: bookPageWidth,
-            minHeight: useMobileLayout ? 420 : 380,
+            minHeight: pageLayout === 'default' ? 380 : 420,
             maxHeight: bookPageHeight,
             autoSize: false,
             showCover: false,
@@ -289,13 +305,13 @@ function initMenuBook() {
             updateNavigation();
         });
 
-        isMobilePageLayout = useMobileLayout;
+        bookPageLayout = pageLayout;
     }
 
     function refreshPageFlipLayoutIfNeeded() {
-        const useMobileLayout = isMobileBookViewport();
+        const nextPageLayout = getBookPageLayout();
 
-        if (!pageFlip || useMobileLayout !== isMobilePageLayout) {
+        if (!pageFlip || nextPageLayout !== bookPageLayout) {
             const currentPageIndex = pageFlip ? pageFlip.getCurrentPageIndex() : 0;
 
             if (pageFlip) {
