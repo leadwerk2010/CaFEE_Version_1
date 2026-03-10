@@ -2533,11 +2533,11 @@ body.modal-open .nav {
 
 @media (pointer: coarse) and (min-width: 768px) and (max-width: 1366px) {
     .menu-book-modal .menu-book-container {
-        width: min(100%, clamp(22.5rem, 49vw, 31.25rem));
+        width: min(100%, clamp(22.75rem, 49.5vw, 31.75rem));
     }
 
     .menu-book-modal .menu-book {
-        height: min(clamp(33rem, 91dvh, 60rem), calc(100dvh - 3.75rem));
+        height: min(clamp(34rem, 93dvh, 62rem), calc(100dvh - 2.75rem));
     }
 }
 
@@ -2555,7 +2555,7 @@ body.modal-open .nav {
     }
 
     .menu-book-modal .menu-book {
-        height: min(clamp(34rem, 93dvh, 56rem), calc(100dvh - 3.25rem));
+        height: min(clamp(35rem, 95dvh, 58rem), calc(100dvh - 2.5rem));
     }
 
     .menu-book-modal .item-header {
@@ -2588,7 +2588,7 @@ body.modal-open .nav {
     }
 
     .menu-book-modal .menu-book {
-        height: min(clamp(31.5rem, 91dvh, 50rem), calc(100dvh - 3rem));
+        height: min(clamp(32.5rem, 93dvh, 52rem), calc(100dvh - 2.25rem));
     }
 
     .cover-content {
