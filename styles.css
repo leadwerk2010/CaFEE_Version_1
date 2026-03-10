@@ -2544,18 +2544,37 @@ body.modal-open .nav {
 @media (max-width: 767.98px) {
     .menu-book-modal {
         padding:
-            max(0.5rem, env(safe-area-inset-top))
-            max(0.5rem, env(safe-area-inset-right))
-            max(0.5rem, env(safe-area-inset-bottom))
-            max(0.5rem, env(safe-area-inset-left));
+            max(0.25rem, env(safe-area-inset-top))
+            max(0.25rem, env(safe-area-inset-right))
+            max(0.25rem, env(safe-area-inset-bottom))
+            max(0.25rem, env(safe-area-inset-left));
     }
 
     .menu-book-modal .menu-book-container {
-        width: min(100%, clamp(18rem, 96vw, 31rem));
+        width: min(100%, calc(100vw - 0.5rem));
+        max-height: calc(100dvh - max(0.25rem, env(safe-area-inset-top) + env(safe-area-inset-bottom)));
+        grid-template-rows: minmax(0, 1fr);
+        gap: 0;
+    }
+
+    .menu-book-modal .menu-book-toolbar {
+        position: absolute;
+        top: 0.35rem;
+        right: 0.35rem;
+        min-height: 0;
+        padding: 0;
+        z-index: 30;
+    }
+
+    .menu-book-modal .btn-close-modal {
+        width: 2.9rem;
+        height: 2.9rem;
+        font-size: 2rem;
     }
 
     .menu-book-modal .menu-book {
-        height: min(clamp(35rem, 95dvh, 58rem), calc(100dvh - 2.5rem));
+        height: calc(100dvh - max(0.5rem, env(safe-area-inset-top) + env(safe-area-inset-bottom)));
+        gap: 0.5rem;
     }
 
     .menu-book-modal .item-header {
@@ -2577,18 +2596,35 @@ body.modal-open .nav {
         grid-template-columns: auto 1fr auto;
     }
 
+    .menu-book-modal .book-navigation {
+        gap: 0.5rem;
+    }
+
+    .menu-book-modal .nav-btn {
+        min-width: 2.85rem;
+        min-height: 2.85rem;
+        padding: 0.65rem;
+    }
+
     .menu-book-modal .page-indicator {
         justify-self: center;
+        min-width: 4.75rem;
+        padding: 0.4rem 0.75rem;
     }
 }
 
 @media (max-width: 374.98px) {
     .menu-book-modal .menu-book-container {
-        width: min(100%, calc(100vw - 1rem));
+        width: min(100%, calc(100vw - 0.35rem));
     }
 
     .menu-book-modal .menu-book {
-        height: min(clamp(32.5rem, 93dvh, 52rem), calc(100dvh - 2.25rem));
+        height: calc(100dvh - max(0.35rem, env(safe-area-inset-top) + env(safe-area-inset-bottom)));
+    }
+
+    .menu-book-modal .btn-close-modal {
+        width: 2.7rem;
+        height: 2.7rem;
     }
 
     .cover-content {

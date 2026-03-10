@@ -228,25 +228,10 @@ function initMenuBook() {
     let resizeFrame = null;
 
     const bookPageWidth = 720;
-    const bookPageHeight = 980;
-
-    const pageFlip = new St.PageFlip(dom.bookPages, {
-        width: bookPageWidth,
-        height: bookPageHeight,
-        size: 'stretch',
-        minWidth: 260,
-        maxWidth: bookPageWidth,
-        minHeight: 380,
-        maxHeight: bookPageHeight,
-        autoSize: false,
-        showCover: false,
-        mobileScrollSupport: true,
-        maxShadowOpacity: 0.35,
-        usePortrait: true,
-        startPage: 0
-    });
-
-    pageFlip.loadFromHTML(pageElements);
+    const desktopBookPageHeight = 980;
+    const mobileBookPageHeight = 1280;
+    let pageFlip = null;
+    let isMobilePageLayout = false;
 
     const turnSound = new Audio('page-turn.mp3');
     turnSound.volume = 0.5;
@@ -255,6 +240,70 @@ function initMenuBook() {
     state.totalPages = pageElements.length;
     if (dom.totalPagesEl) {
         dom.totalPagesEl.textContent = String(state.totalPages);
+    }
+
+    function isMobileBookViewport() {
+        return (window.visualViewport?.width ?? window.innerWidth) <= 767.98;
+    }
+
+    function buildPageFlip(startPage = 0) {
+        const useMobileLayout = isMobileBookViewport();
+        const bookPageHeight = useMobileLayout ? mobileBookPageHeight : desktopBookPageHeight;
+        const safeStartPage = Math.max(0, Math.min(startPage, pageElements.length - 1));
+
+        pageElements.forEach(pageElement => {
+            pageElement.style.width = `${bookPageWidth}px`;
+            pageElement.style.height = `${bookPageHeight}px`;
+        });
+
+        dom.bookPages.dataset.bookLayout = useMobileLayout ? 'mobile' : 'default';
+        dom.bookPages.replaceChildren(...pageElements);
+
+        pageFlip = new St.PageFlip(dom.bookPages, {
+            width: bookPageWidth,
+            height: bookPageHeight,
+            size: 'stretch',
+            minWidth: 260,
+            maxWidth: bookPageWidth,
+            minHeight: useMobileLayout ? 420 : 380,
+            maxHeight: bookPageHeight,
+            autoSize: false,
+            showCover: false,
+            mobileScrollSupport: true,
+            maxShadowOpacity: 0.35,
+            usePortrait: true,
+            startPage: safeStartPage
+        });
+
+        pageFlip.loadFromHTML(pageElements);
+        pageFlip.on('flip', () => {
+            turnSound.currentTime = 0;
+
+            const playPromise = turnSound.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(err => {
+                    console.log('Audio play blocked', err);
+                });
+            }
+
+            updateNavigation();
+        });
+
+        isMobilePageLayout = useMobileLayout;
+    }
+
+    function refreshPageFlipLayoutIfNeeded() {
+        const useMobileLayout = isMobileBookViewport();
+
+        if (!pageFlip || useMobileLayout !== isMobilePageLayout) {
+            const currentPageIndex = pageFlip ? pageFlip.getCurrentPageIndex() : 0;
+
+            if (pageFlip) {
+                pageFlip.destroy();
+            }
+
+            buildPageFlip(currentPageIndex);
+        }
     }
 
     function updateNavigation() {
@@ -346,6 +395,7 @@ function initMenuBook() {
         }
 
         resizeFrame = window.requestAnimationFrame(() => {
+            refreshPageFlipLayoutIfNeeded();
             pageFlip.update();
             updateNavigation();
         });
@@ -370,6 +420,7 @@ function initMenuBook() {
 
         lockBackgroundScroll();
         setSiblingsInert(true);
+        refreshPageFlipLayoutIfNeeded();
         syncBookA11y();
         closeMenuModalBtn.focus({ preventScroll: true });
 
@@ -399,6 +450,7 @@ function initMenuBook() {
 
     function openBook() {
         state.isBookOpen = true;
+        refreshPageFlipLayoutIfNeeded();
         dom.bookCover.classList.add('hidden');
         dom.bookPages.classList.add('active');
 
@@ -457,19 +509,6 @@ function initMenuBook() {
         }
     }
 
-    pageFlip.on('flip', () => {
-        turnSound.currentTime = 0;
-
-        const playPromise = turnSound.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(err => {
-                console.log('Audio play blocked', err);
-            });
-        }
-
-        updateNavigation();
-    });
-
     openMenuModalBtn.addEventListener('click', openMenuModal);
     closeMenuModalBtn.addEventListener('click', closeMenuModal);
     dom.openBookBtn.addEventListener('click', openBook);
@@ -504,6 +543,7 @@ function initMenuBook() {
         }
     }
 
+    buildPageFlip(0);
     resetBookState();
     updateNavigation();
 }
