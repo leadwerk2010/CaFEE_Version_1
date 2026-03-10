@@ -3626,3 +3626,30 @@ body.ot-overlay-open {
     width: 32.5rem !important;
     align-items: normal !important;
 }
+
+/* Temporary Hide Switches
+   Remove this block to show the hidden elements again. */
+
+/* Hide the top navigation "Reservieren" button */
+.nav-menu .nav-cta[href="#reservation"] {
+    display: none !important;
+}
+
+/* Keep the original desktop spacing while removing the hidden CTA slot */
+@media (min-width: 901px) {
+    .nav-menu li:last-child {
+        display: none !important;
+    }
+}
+
+/* Hide the hero "Tisch reservieren" button */
+.hero-buttons .btn.btn-primary[href="#reservation"] {
+    display: none !important;
+}
+
+/* Hide the reservation widget area */
+.reservation-widget,
+[id^="ot-widget-container"],
+#otFallbackFrame {
+    display: none !important;
+}
